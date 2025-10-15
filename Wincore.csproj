@@ -1,0 +1,85 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
+    <ApplicationIcon>ReisProduction.ico</ApplicationIcon>
+    <PlatformTarget>x64</PlatformTarget>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>Wincore.snk</AssemblyOriginatorKeyFile>
+    <Title>$(AssemblyName)</Title>
+    <Version>25.5.1</Version>
+    <Authors>Reis Production</Authors>
+    <Product>$(Authors)</Product>
+    <Description>Wincore</Description>
+    <Copyright>Copyrights Reis Production 2025</Copyright>
+    <PackageProjectUrl>https://reisproduction.com</PackageProjectUrl>
+    <PackageIcon>ReisProduction.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/BayramReisbirligi/Wincore</RepositoryUrl>
+    <PackageTags>$(AssemblyName)</PackageTags>
+    <PackageReleaseNotes>Happy release Wincore!</PackageReleaseNotes>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <AssemblyVersion>25.5.1.4</AssemblyVersion>
+    <FileVersion>25.5.1.4</FileVersion>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <IsPublishable>False</IsPublishable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <IsPublishable>False</IsPublishable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="ReisProduction.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="9.0.9" />
+    <PackageReference Include="System.Management" Version="9.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="ReisProduction.png">
+      <PackagePath>\</PackagePath>
+      <Pack>True</Pack>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="ReisProduction.Wincore.Models.SizeConverter">
+      <Static>True</Static>
+    </Using>
+    <Using Include="ReisProduction.Wincore.Services" />
+    <Using Include="ReisProduction.Wincore.Services.Interop">
+      <Static>True</Static>
+    </Using>
+    <Using Include="ReisProduction.Wincore.Services.NativeMethods">
+      <Static>True</Static>
+    </Using>
+    <Using Include="ReisProduction.Wincore.System" />
+    <Using Include="ReisProduction.Wincore.Utilities" />
+    <Using Include="ReisProduction.Wincore.Utilities.Constants">
+      <Static>True</Static>
+    </Using>
+    <Using Include="ReisProduction.Wincore.Utilities.Enums" />
+    <Using Include="ReisProduction.Wincore.Utilities.Structs" />
+    <Using Include="System.Diagnostics" />
+    <Using Include="System.Text" />
+  </ItemGroup>
+
+</Project>
