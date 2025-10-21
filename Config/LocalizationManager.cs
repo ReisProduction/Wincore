@@ -5,5 +5,4 @@
 public static class LocalizationManager
 {
 
-    // Hepsi bittikten sonra bütün projeye gerekli şekilde entegre edilecek.
 }

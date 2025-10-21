@@ -36,14 +36,19 @@ public static class ProcessManager
         catch { return 0; }
     }
     /// <summary>
-    /// Finds the process ID based on the provided ProcessInfo.
+    /// Finds the process ID based on the provided ProcessInfo. Throws an exception if the name is null or whitespace and throwIfNull is true.
     /// </summary>
-    public static int FindId(ProcessInfo info)
+    public static int FindId(ProcessInfo info, bool throwIfNull = true)
     {
+        if (info is null)
+            if (throwIfNull)
+                throw new ArgumentNullException($"Process Info= \"{info}\" is doesn't exit");
+            else return 0;
         var pid = info.Id;
         if (pid is 0)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(info.ProcessName);
+            if (throwIfNull)
+                ArgumentException.ThrowIfNullOrWhiteSpace(info.ProcessName);
             var proc = Process.GetProcessesByName(info.ProcessName).FirstOrDefault()
                        ?? throw new InvalidOperationException($"Process \"{info.ProcessName}\" not found.");
             pid = proc.Id;
@@ -51,11 +56,12 @@ public static class ProcessManager
         return pid;
     }
     /// <summary>
-    /// Finds the process ID based on the provided process name.
+    /// Finds the process ID based on the provided process name. Throws an exception if the name is null or whitespace and throwIfNull is true.
     /// </summary>
-    public static int FindId(string name)
+    public static int FindId(string name, bool throwIfNull = true)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        if (throwIfNull)
+            ArgumentException.ThrowIfNullOrWhiteSpace(name);
         var p = Process.GetProcessesByName(name);
         return p.Length is 0 ? 0 : p[0].Id;
     }

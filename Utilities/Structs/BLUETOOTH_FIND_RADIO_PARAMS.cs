@@ -1,10 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 namespace ReisProduction.Wincore.Utilities.Structs;
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-public struct POINT(int x, int y)
+public struct BLUETOOTH_FIND_RADIO_PARAMS (int dwSize)
 {
-    public int
-        X = x,
-        Y = y;
-    public override readonly string ToString() => $"POINT [X={X}, Y={Y}]";
+    public int dwSize = dwSize;
 }

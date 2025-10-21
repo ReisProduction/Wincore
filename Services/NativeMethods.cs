@@ -18,9 +18,9 @@ internal static class NativeMethods
     [DllImport("advapi32", EntryPoint = "CredWriteW", CharSet = CharSet.Unicode, SetLastError = true)]
     internal static extern bool CredWrite([In] ref NativeCredential userCredential, [In] uint flags);
     [DllImport("advapi32", EntryPoint = "CredReadW", CharSet = CharSet.Unicode, SetLastError = true)]
-    internal static extern bool CredRead(string target, int type, int reservedFlag, out IntPtr credentialPtr);
+    internal static extern bool CredRead(string target, int type, int reservedFlag, out nint credentialPtr);
     [DllImport("advapi32", EntryPoint = "CredFree", SetLastError = true)]
-    internal static extern void CredFree([In] IntPtr cred);
+    internal static extern void CredFree([In] nint cred);
     [DllImport("advapi32", EntryPoint = "CredDeleteW", CharSet = CharSet.Unicode, SetLastError = true)]
     internal static extern bool CredDelete(string target, int type, int reservedFlag);
     [DllImport("advapi32", SetLastError = true, CharSet = CharSet.Unicode)]
@@ -29,6 +29,38 @@ internal static class NativeMethods
     #region Dwmapi
     [DllImport("dwmapi.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     internal static extern int DwmSetWindowAttribute(nint hwnd, int attr, int[] attrValue, int attrSize);
+    #endregion
+    #region Uxtheme
+    [DllImport("uxtheme.dll", EntryPoint = "#95")]
+    internal static extern uint GetImmersiveColorFromColorSetEx(uint dwImmersiveColorSet, uint dwImmersiveColorType, bool bIgnoreHighContrast, uint dwHighContrastCacheMode);
+    [DllImport("uxtheme.dll", EntryPoint = "#96")]
+    internal static extern uint GetImmersiveColorTypeFromName(nint pName);
+    [DllImport("uxtheme.dll", EntryPoint = "#98")]
+    internal static extern int GetImmersiveUserColorSetPreference(bool bForceCheckRegistry, bool bSkipCheckOnFail);
+    #endregion
+    #region BthpropsCpl
+    [DllImport("bthprops.cpl", CharSet = CharSet.Unicode, SetLastError = true)]
+    internal static extern int BluetoothEnableDiscovery(nint hwndCaller, bool fEnabled);
+    [DllImport("bthprops.cpl", CharSet = CharSet.Unicode, SetLastError = true)]
+    internal static extern int BluetoothEnableIncomingConnections(nint hwndCaller, bool fEnabled);
+    [DllImport("bthprops.cpl", CharSet = CharSet.Unicode, SetLastError = true)]
+    internal static extern nint BluetoothFindFirstRadio(ref BLUETOOTH_FIND_RADIO_PARAMS pbtfrp, out nint phRadio);
+    [DllImport("bthprops.cpl", CharSet = CharSet.Unicode, SetLastError = true)]
+    internal static extern bool BluetoothFindNextRadio(nint hFind, out nint phRadio);
+    [DllImport("bthprops.cpl", CharSet = CharSet.Unicode, SetLastError = true)]
+    internal static extern bool BluetoothFindRadioClose(nint hFind);
+    [DllImport("bthprops.cpl", CharSet = CharSet.Unicode, SetLastError = true)]
+    internal static extern int BluetoothGetRadioInfo(nint hRadio, ref BLUETOOTH_RADIO_INFO pRadioInfo);
+    [DllImport("bthprops.cpl", CharSet = CharSet.Unicode, SetLastError = true)]
+    internal static extern bool BluetoothIsDiscoverable(nint hRadio);
+    [DllImport("bthprops.cpl", CharSet = CharSet.Unicode, SetLastError = true)]
+    internal static extern bool BluetoothIsConnectable(nint hRadio);
+    [DllImport("bthprops.cpl", CharSet = CharSet.Unicode, SetLastError = true)]
+    internal static extern int BluetoothAuthenticateDevice(nint hwndParent, nint hRadio, ref BLUETOOTH_DEVICE_INFO pbtdi, StringBuilder pszPasskey, uint ulPasskeyLength);
+    [DllImport("bthprops.cpl", CharSet = CharSet.Unicode, SetLastError = true)]
+    internal static extern int BluetoothRemoveDevice(ref Guid pAddress);
+    [DllImport("bthprops.cpl", CharSet = CharSet.Unicode, SetLastError = true)]
+    internal static extern int BluetoothSetServiceState(nint hRadio, ref BLUETOOTH_DEVICE_INFO pbtdi, ref Guid pGuidService, uint dwServiceFlags);
     #endregion
     #region User32
     [DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
@@ -46,6 +78,10 @@ internal static class NativeMethods
     [DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
     internal static extern short GetAsyncKeyState(ushort key);
     [DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
+    internal static extern uint MapVirtualKey(uint uCode, uint uMapType);
+    [DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
+    internal static extern nint GetMessageExtraInfo();
+    [DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
     internal static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
     [DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
     internal static extern void keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
@@ -54,7 +90,7 @@ internal static class NativeMethods
     [DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
     internal static extern nint SendMessage(nint hWnd, uint Msg, nint wParam, nint lParam);
     [DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
-    internal static extern void mouse_event(MouseEvent dwFlags, int dx, int dy, int dwData, int dwExtraInfo);
+    internal static extern void mouse_event(MouseEventType dwFlags, int dx, int dy, int dwData, int dwExtraInfo);
     [DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
     internal static extern bool IsIconic(nint hWnd);
     [DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
@@ -66,13 +102,13 @@ internal static class NativeMethods
     [DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
     internal static extern bool SetWindowPos(nint hWnd, nint hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
     [DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
+    internal static extern bool ShowCursor(bool bShow);
+    [DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
     internal static extern bool SetCursorPos(int X, int Y);
     [DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
     internal static extern bool GetCursorPos(out POINT lpPoint);
     [DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
     internal static extern int GetWindowText(nint hWnd, StringBuilder lpString, int nMaxCount);
-    [DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
-    internal static extern nint GetMessageExtraInfo();
     [DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
     internal static extern nint GetForegroundWindow();
     [DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]

@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Drawing;
 namespace ReisProduction.Wincore.Utilities.Structs;
-[StructLayout(LayoutKind.Sequential)]
+[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
 public struct RECT
 {
     public int Left, Top, Right, Bottom;

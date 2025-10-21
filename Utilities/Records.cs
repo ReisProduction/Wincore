@@ -1,8 +1,5 @@
-﻿#if WINUI || WINDOWS_APP || WINRT
-using Windows.UI.Input.Preview.Injection;
-using Windows.Gaming.Input;
-#endif
-using Windows.Graphics;
+﻿using ReisProduction.Windelay.Utilities;
+using Windows.System;
 namespace ReisProduction.Wincore.Utilities;
 public record ProcessInfo(
     int Id = 0,
@@ -25,41 +22,71 @@ public record DiskInfo(
 }
 public record InputSequence(IReadOnlyList<InputStep> Steps);
 public record InputStep(
-    IInputAction Action,
-    DelayAction? Delay = default
+    IInputEvent Action,
+    DelayAction? Delay = default,
+    WindowInfo Info = default!
 );
-public record KybdAction<T>(
-    T[] Keys,
-    bool[] States,
-    nint WindowhWnd = 0,
-    string WindowTitle = ""
-) : IKybdAction<T>;
+public record KybdEvent(
+    VirtualKey[] Keys,
+    bool[] UseScanCode,
+    bool[] UseUnicode,
+    bool[] IsExtendedKey,
+    WindowsMessageType[] Messages,
+    WindowInfo WindowInfo = default!,
+    int Time = 0
+) : IKybdEvent
+{
+    public static KybdEvent Create(VirtualKey[] keys, WindowsMessageType[] messages,
+        bool useScanCode = false, bool useUnicode = false, bool isExtendedKey = false,
+        WindowInfo windowInfo = default!, int time = 0) =>
+    new(
+        Keys: keys,
+        UseScanCode: [.. Enumerable.Repeat(useScanCode, keys.Length)],
+        UseUnicode: [.. Enumerable.Repeat(useUnicode, keys.Length)],
+        IsExtendedKey: [.. Enumerable.Repeat(isExtendedKey, keys.Length)],
+        Messages: messages,
+        WindowInfo: windowInfo,
+        Time: time
+    );
+}
 public record ButtonAction(
-    bool[] States,
     ButtonType[] Buttons,
-    nint WindowhWnd = 0,
-    string WindowTitle = ""
-) : IMouseButton;
+    WindowsMessageType[] Messages,
+    WindowInfo WindowInfo = default!
+) : IButtonEvent;
 public record ScrollAction(
     ScrollType[] ScrollTypes,
     int[] ScrollAmount,
-    nint WindowhWnd = 0,
-    string WindowTitle = ""
-) : IScrollAction;
+    WindowInfo WindowInfo = default!
+) : IScrollEvent;
 public record MoveAction(
     MoveType[] Moves,
-    PointInt32[] CursorPoints
-) : IMoveAction;
+    int[] DeltaX,
+    int[] DeltaY,
+    WindowInfo WindowInfo = default!
+) : IMoveEvent;
+public record MouseEvent(
+    MouseEventType Events,
+    int XButton = 1,
+    int Wheel = 0,
+    int Dx = 0,
+    int Dy = 0,
+    int DwData = 0,
+    int DwExtraInfo = 0,
+    int Time = 0,
+    WindowInfo WindowInfo = default!
+) : IMouseEvent;
 #if WINUI || WINDOWS_APP || WINRT
 public record MouseAction(
+    Windows.UI.Input.Preview.Injection.
     InjectedInputMouseOptions[] Options,
     uint[] MouseData,
     int[] DeltaX,
     int[] DeltaY,
-    nint WindowhWnd = 0,
-    string WindowTitle = ""
+    WindowInfo WindowInfo = default!
 ) : IMouseAction;
 public record GamepadAction(
+    Windows.Gaming.Input.
     GamepadButtons Buttons,
     byte LeftTrigger = 0,
     byte RightTrigger = 0,
@@ -67,26 +94,38 @@ public record GamepadAction(
     short LeftThumbstickY = 0,
     short RightThumbstickX = 0,
     short RightThumbstickY = 0,
-    nint WindowhWnd = 0,
-    string WindowTitle = ""
+    WindowInfo WindowInfo = default!
 ) : IGamepadAction;
 public record PenAction(
+    Windows.UI.Input.Preview.Injection.
     InjectedInputPointerOptions Options,
+    Windows.UI.Input.Preview.Injection.
     InjectedInputPoint Point,
     int Pressure = 2000,
     int TiltX = 0,
     int TiltY = 0,
     double Rotation = 0,
-    InjectedInputPenButtons PenButtons = InjectedInputPenButtons.None,
-    InjectedInputPenParameters PenParameters = InjectedInputPenParameters.Pressure |
-    InjectedInputPenParameters.Rotation | InjectedInputPenParameters.TiltX | InjectedInputPenParameters.TiltY,
-    nint WindowhWnd = 0,
-    string WindowTitle = ""
+    Windows.UI.Input.Preview.Injection.
+    InjectedInputPenButtons PenButtons =
+    Windows.UI.Input.Preview.Injection.
+    InjectedInputPenButtons.None,
+    Windows.UI.Input.Preview.Injection.
+    InjectedInputPenParameters PenParameters =
+    Windows.UI.Input.Preview.Injection.
+    InjectedInputPenParameters.Pressure |
+    Windows.UI.Input.Preview.Injection.
+    InjectedInputPenParameters.Rotation |
+    Windows.UI.Input.Preview.Injection.
+    InjectedInputPenParameters.TiltX |
+    Windows.UI.Input.Preview.Injection.
+    InjectedInputPenParameters.TiltY,
+    WindowInfo WindowInfo = default!
 ) : IPenAction;
 public record TouchAction(
+    Windows.UI.Input.Preview.Injection.
     InjectedInputPointerOptions Options,
+    Windows.UI.Input.Preview.Injection.
     InjectedInputPoint Point,
-    nint WindowhWnd = 0,
-    string WindowTitle = ""
+    WindowInfo WindowInfo = default!
 ) : ITouchAction;
 #endif

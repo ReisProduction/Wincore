@@ -1,10 +1,10 @@
 ﻿using System.Runtime.InteropServices;
 namespace ReisProduction.Wincore.Utilities.Structs;
-[StructLayout(LayoutKind.Sequential)]
-public struct HARDWAREINPUT
+[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+public struct HARDWAREINPUT(int uMsg, short wParamL, short wParamH)
 {
-    public int uMsg;
+    public int uMsg = uMsg;
     public short
-        wParamL,
-        wParamH;
+        wParamL = wParamL,
+        wParamH = wParamH;
 }

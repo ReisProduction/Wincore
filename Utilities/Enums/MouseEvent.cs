@@ -1,8 +1,9 @@
 ﻿namespace ReisProduction.Wincore.Utilities.Enums;
 [Flags]
-public enum MouseEvent : uint
+public enum MouseEventType : int
 {
     None = 0x0000,
+    MOVE = 0x0001,
     LEFTDOWN = 0x0002,
     LEFTUP = 0x0004,
     RIGHTDOWN = 0x0008,
@@ -11,5 +12,7 @@ public enum MouseEvent : uint
     MIDDLEUP = 0x0040,
     XDOWN = 0x0080,
     XUP = 0x0100,
-    WHEEL = 0x0800
+    WHEEL = 0x0800,
+    HWHEEL = 0x1000,
+    ABSOLUTE = 0x8000
 }

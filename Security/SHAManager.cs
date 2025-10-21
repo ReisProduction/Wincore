@@ -46,16 +46,16 @@ public static class SHAManager
     /// <summary>
     /// Verifies if the SHA-256 hash of the given input string or byte array matches the expected hash, optionally using a salt.
     /// </summary>
-    public static bool Verify(string input, string expectedHash, string? salt = null)
-        => string.Equals(Compute(input, salt), expectedHash, StringComparison.OrdinalIgnoreCase);
+    public static bool Verify(string input, string expectedHash, string? salt = null, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
+        => string.Equals(Compute(input, salt), expectedHash, comparison);
     /// <summary>
     /// Verifies if the SHA-256 hash of the given byte array matches the expected hash, optionally using a salt.
     /// </summary>
-    public static bool Verify(byte[] data, string expectedHash, string? salt = null)
-        => string.Equals(Compute(data, salt), expectedHash, StringComparison.OrdinalIgnoreCase);
+    public static bool Verify(byte[] data, string expectedHash, string? salt = null, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
+        => string.Equals(Compute(data, salt), expectedHash, comparison);
     /// <summary>
     /// Verifies if the SHA-256 hash of a file's contents matches the expected hash asynchronously.
     /// </summary>
-    public static async Task<bool> VerifyFileAsync(string filePath, string expectedHash)
-        => string.Equals(await ComputeFileAsync(filePath), expectedHash, StringComparison.OrdinalIgnoreCase);
+    public static async Task<bool> VerifyFileAsync(string filePath, string expectedHash, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
+        => string.Equals(await ComputeFileAsync(filePath), expectedHash, comparison);
 }

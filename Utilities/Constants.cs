@@ -13,35 +13,8 @@ public static class Constants
         INPUT_MOUSE = 0,        // Mouse input
         INPUT_KEYBOARD = 1,     // Keyboard input
 
-        // XButton identifiers
-        XBUTTON1 = 0x0001,     // First extended (side) mouse button
-        XBUTTON2 = 0x0002,     // Second extended (side) mouse button
-
         // Mouse wheel constants
         WHEEL_DELTA = -120,       // Default value for one wheel notch movement
-
-        // Keyboard messages
-        WM_KEYDOWN = 0x0100,   // Key pressed message
-        WM_KEYUP = 0x0101,     // Key released message
-
-        // Keyboard event flags
-        KEYEVENTF_EXTENDEDKEY = 0x0001,     // Extended key (e.g. right ALT, right CTRL)
-        KEYEVENTF_KEYUP = 0x0002,           // Key release event
-        KEYEVENTF_SCANCODE = 0x0008,        // Use scan code instead of virtual-key code
-
-        // Mouse event flags
-        MOUSEEVENTF_WHEEL = 0x0800,       // Vertical wheel movement
-        MOUSEEVENTF_HWHEEL = 0x01000,     // Horizontal wheel movement
-        MOUSEEVENTF_XDOWN = 0x0080,       // X button pressed
-        MOUSEEVENTF_XUP = 0x0100,         // X button released
-        MOUSEEVENTF_MOVE = 0x0001,        // Mouse movement
-        MOUSEEVENTF_LEFTDOWN = 0x0002,    // Left button pressed
-        MOUSEEVENTF_LEFTUP = 0x0004,      // Left button released
-        MOUSEEVENTF_RIGHTDOWN = 0x0008,   // Right button pressed
-        MOUSEEVENTF_RIGHTUP = 0x0010,     // Right button released
-        MOUSEEVENTF_MIDDLEDOWN = 0x0020,  // Middle button pressed
-        MOUSEEVENTF_MIDDLEUP = 0x0040,    // Middle button released
-        MOUSEEVENTF_ABSOLUTE = 0x8000,    // Absolute cursor position (not relative)
 
         // Credential Types and Persistence
         CRED_TYPE_GENERIC = 1,              // Generic credential type

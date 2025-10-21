@@ -18,7 +18,7 @@
     <PackageProjectUrl>https://reisproduction.com</PackageProjectUrl>
     <PackageIcon>ReisProduction.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/BayramReisbirligi/Wincore</RepositoryUrl>
+    <RepositoryUrl>https://github.com/ReisProduction/Wincore</RepositoryUrl>
     <PackageTags>$(AssemblyName)</PackageTags>
     <PackageReleaseNotes>Happy release Wincore!</PackageReleaseNotes>
     <NeutralLanguage>en-US</NeutralLanguage>
@@ -26,13 +26,14 @@
     <FileVersion>25.5.1.4</FileVersion>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IsPublishable>False</IsPublishable>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IsPublishable>False</IsPublishable>
   </PropertyGroup>
 
@@ -41,8 +42,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="9.0.9" />
-    <PackageReference Include="System.Management" Version="9.0.8" />
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="9.0.10" />
+    <PackageReference Include="System.Management" Version="9.0.10" />
+    <PackageReference Include="Windelay" Version="26.5.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -69,6 +71,9 @@
       <Static>True</Static>
     </Using>
     <Using Include="ReisProduction.Wincore.Services.NativeMethods">
+      <Static>True</Static>
+    </Using>
+    <Using Include="ReisProduction.Wincore.Services.WindowManager">
       <Static>True</Static>
     </Using>
     <Using Include="ReisProduction.Wincore.System" />

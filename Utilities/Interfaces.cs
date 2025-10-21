@@ -1,7 +1,4 @@
-﻿using Windows.Gaming.Input;
-using Windows.Graphics;
-using Windows.UI.Input.Preview.Injection;
-
+﻿using Windows.System;
 namespace ReisProduction.Wincore.Utilities;
 public interface IProcessInfo
 {
@@ -23,40 +20,59 @@ public interface IDiskInfo
     string FileSystem { get; }
     DriveType Type { get; }
 }
-public interface IInputAction { }
-public interface IPressAction : IInputAction
+public interface IInputEvent
 {
-    bool[] States { get; }
-    nint WindowhWnd { get; }
-    string WindowTitle { get; }
+    WindowInfo WindowInfo { get; }
 }
-public interface IKybdAction<T> : IPressAction
+public interface IPressEvent : IInputEvent
 {
-    T[] Keys { get; }
+    WindowsMessageType[] Messages { get; }
 }
-public interface IMouseAction : IInputAction
+public interface IKybdEvent : IPressEvent
 {
+    VirtualKey[] Keys { get; }
+    bool[] UseScanCode { get; }
+    bool[] IsExtendedKey { get; }
+    int Time { get; }
+}
+public interface IScrollEvent : IInputEvent
+{
+    ScrollType[] ScrollTypes { get; }
+    int[] ScrollAmount { get; }
+}
+public interface IButtonEvent : IPressEvent
+{
+    ButtonType[] Buttons { get; }
+}
+public interface IMoveEvent : IInputEvent
+{
+    MoveType[] Moves { get; }
+    int[] DeltaX { get; }
+    int[] DeltaY { get; }
+}
+public interface IMouseEvent : IInputEvent
+{
+    MouseEventType Events { get; }
+    int XButton { get; }
+    int Wheel { get; }
+    int Dx { get; }
+    int Dy { get; }
+    int DwData { get; }
+    int DwExtraInfo { get; }
+    int Time { get; }
+}
+#if WINUI || WINDOWS_APP || WINRT
+public interface IMouseAction : IInputEvent
+{
+    Windows.UI.Input.Preview.Injection.
     InjectedInputMouseOptions[] Options { get; }
     uint[] MouseData { get; }
     int[] DeltaX { get; }
     int[] DeltaY { get; }
 }
-public interface IMouseButton : IPressAction
+public interface IGamepadAction : IInputEvent
 {
-    ButtonType[] Buttons { get; }
-}
-public interface IScrollAction : IInputAction
-{
-    ScrollType[] ScrollTypes { get; }
-    int[] ScrollAmount { get; }
-}
-public interface IMoveAction : IInputAction
-{
-    MoveType[] Moves { get; }
-    PointInt32[] CursorPoints { get; }
-}
-public interface IGamepadAction : IInputAction
-{
+    Windows.Gaming.Input.
     GamepadButtons Buttons { get; }
     byte LeftTrigger { get; }
     byte RightTrigger { get; }
@@ -65,14 +81,19 @@ public interface IGamepadAction : IInputAction
     short RightThumbstickX { get; }
     short RightThumbstickY { get; }
 }
-public interface IPenAction : IInputAction
+public interface IPenAction : IInputEvent
 {
+    Windows.UI.Input.Preview.Injection.
     InjectedInputPointerOptions Options { get; }
+    Windows.UI.Input.Preview.Injection.
     InjectedInputPoint Point { get; }
     int Pressure { get; }
 }
-public interface ITouchAction : IInputAction
+public interface ITouchAction : IInputEvent
 {
+    Windows.UI.Input.Preview.Injection.
     InjectedInputPointerOptions Options { get; }
+    Windows.UI.Input.Preview.Injection.
     InjectedInputPoint Point { get; }
 }
+#endif

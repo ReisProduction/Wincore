@@ -17,7 +17,7 @@ public static class TextUtils
         string f0r = "internal-For".GetString();
         x = x.GetString();
         forX = forX.GetString();
-        return (userSettings.SelectedLanguage ?? SystemInfo.TwoLetterISOLanguageName) switch
+        return (/*LocalizationManager.SelectedLanguage ??*/ SystemInfo.TwoLetterISOLanguageName) switch
         {
             "tr" => $"{forX} {f0r} {x}",
             _ => $"{x} {f0r} {forX}"
