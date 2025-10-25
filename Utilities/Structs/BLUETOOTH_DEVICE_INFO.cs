@@ -8,11 +8,9 @@ public struct BLUETOOTH_DEVICE_INFO(int dwSize, ulong Address, uint ulClassOfDev
     public ulong Address = Address;
     public uint ulClassofDevice = ulClassOfDevice;
     [MarshalAs(UnmanagedType.Bool)]
-    public bool fConnected = fConnected;
-    [MarshalAs(UnmanagedType.Bool)]
-    public bool fRemembered = fRemembered;
-    [MarshalAs(UnmanagedType.Bool)]
-    public bool fAuthenticated = fAuthenticated;
+    public bool fConnected = fConnected,
+               fRemembered = fRemembered,
+            fAuthenticated = fAuthenticated;
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 248)]
     public string szName = szName;
 }

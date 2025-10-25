@@ -1,20 +1,22 @@
 ﻿namespace ReisProduction.Wincore.Models;
 /// <summary>
-/// Static class providing methods to convert and format sizes for data, length, and weight.
+/// Struct providing universal numeric conversion and formatting for data, length, and weight.
+/// Supports all numeric types (int, long, float, double, decimal, byte, short).
+/// High performance, no nullable types.
 /// </summary>
 public static class SizeConverter
 {
     // ---------------------- Data Size ----------------------
-    public static double ToBits(this long bytes) => bytes * 8d;
-    public static double ToBytes(this long bits) => bits / 8d;
-    public static double ToKiloBytes(this long bytes) => bytes / 1024d;
-    public static double ToMegaBytes(this long bytes) => bytes / 1048576d;
-    public static double ToGigaBytes(this long bytes) => bytes / 1073741824d;
-    public static double ToTeraBytes(this long bytes) => bytes / 1099511627776d;
-    public static string FormatDataSize(this long bytes, int precision = 2, string prefix = "", string suffix = "")
+    public static double ToBits<T>(this T bytes) where T : struct, IConvertible => Convert.ToDouble(bytes) * 8d;
+    public static double ToBytes<T>(this T bits) where T : struct, IConvertible => Convert.ToDouble(bits) / 8d;
+    public static double ToKiloBytes<T>(this T bytes) where T : struct, IConvertible => Convert.ToDouble(bytes) / 1024d;
+    public static double ToMegaBytes<T>(this T bytes) where T : struct, IConvertible => Convert.ToDouble(bytes) / 1048576d;
+    public static double ToGigaBytes<T>(this T bytes) where T : struct, IConvertible => Convert.ToDouble(bytes) / 1073741824d;
+    public static double ToTeraBytes<T>(this T bytes) where T : struct, IConvertible => Convert.ToDouble(bytes) / 1099511627776d;
+    public static string FormatDataSize<T>(this T bytes, int precision = 2, string prefix = "", string suffix = "") where T : struct, IConvertible
     {
         string[] units = ["B", "KB", "MB", "GB", "TB", "PB"];
-        double size = bytes;
+        double size = Convert.ToDouble(bytes);
         int order = 0;
         while (size >= 1024 && order < units.Length - 1)
         {
@@ -23,14 +25,14 @@ public static class SizeConverter
         }
         return $"{prefix}{Math.Round(size, precision)} {units[order]}{suffix}";
     }
-    // ---------------------------- Data Rate ----------------------------
-    public static double ToKilobits(this long bytes) => bytes * 8d / 1024d;
-    public static double ToMegabits(this long bytes) => bytes * 8d / 1048576d;
-    public static double ToGigabits(this long bytes) => bytes * 8d / 1073741824d;
-    public static string FormatDataRate(this long bytes, int precision = 2, string prefix = "", string suffix = "")
+    // ---------------------- Data Rate ----------------------
+    public static double ToKilobits<T>(this T bytes) where T : struct, IConvertible => Convert.ToDouble(bytes) * 8d / 1024d;
+    public static double ToMegabits<T>(this T bytes) where T : struct, IConvertible => Convert.ToDouble(bytes) * 8d / 1048576d;
+    public static double ToGigabits<T>(this T bytes) where T : struct, IConvertible => Convert.ToDouble(bytes) * 8d / 1073741824d;
+    public static string FormatDataRate<T>(this T bytes, int precision = 2, string prefix = "", string suffix = "") where T : struct, IConvertible
     {
         string[] units = ["bps", "Kbps", "Mbps", "Gbps"];
-        double size = bytes * 8d;
+        double size = Convert.ToDouble(bytes) * 8d;
         int order = 0;
         while (size >= 1024 && order < units.Length - 1)
         {
@@ -39,22 +41,23 @@ public static class SizeConverter
         }
         return $"{prefix}{Math.Round(size, precision)} {units[order]}{suffix}";
     }
+
     // ---------------------- Length ----------------------
-    public static double ToMillimeters(this double meters) => meters * 1000d;
-    public static double ToCentimeters(this double meters) => meters * 100d;
-    public static double ToMeters(this double centimeters) => centimeters / 100d;
-    public static double ToKilometers(this double meters) => meters / 1000d;
-    public static double ToMetersFromKilometers(this double km) => km * 1000d;
-    public static string FormatLength(this double meters, int precision = 2, string prefix = "", string suffix = "")
+    public static double ToMillimeters<T>(this T meters) where T : struct, IConvertible => Convert.ToDouble(meters) * 1000d;
+    public static double ToCentimeters<T>(this T meters) where T : struct, IConvertible => Convert.ToDouble(meters) * 100d;
+    public static double ToMeters<T>(this T centimeters) where T : struct, IConvertible => Convert.ToDouble(centimeters) / 100d;
+    public static double ToKilometers<T>(this T meters) where T : struct, IConvertible => Convert.ToDouble(meters) / 1000d;
+    public static double ToMetersFromKilometers<T>(this T km) where T : struct, IConvertible => Convert.ToDouble(km) * 1000d;
+    public static string FormatLength<T>(this T meters, int precision = 2, string prefix = "", string suffix = "") where T : struct, IConvertible
     {
         string[] units = ["mm", "cm", "m", "km"];
-        double size = meters;
-        int order = 2; // start with meters as default
+        double size = Convert.ToDouble(meters);
+        int order = 2;
         if (size < 1)
         {
-            size *= 1000; // convert to mm
+            size *= 1000;
             order = 0;
-            if (size >= 10) // if bigger than 10 mm, use cm
+            if (size >= 10)
             {
                 size /= 10;
                 order = 1;
@@ -68,14 +71,14 @@ public static class SizeConverter
         return $"{prefix}{Math.Round(size, precision)} {units[order]}{suffix}";
     }
     // ---------------------- Weight ----------------------
-    public static double ToGrams(this double kilograms) => kilograms * 1000d;
-    public static double ToKilograms(this double grams) => grams / 1000d;
-    public static double ToTonnes(this double kilograms) => kilograms / 1000d;
-    public static double ToKilogramsFromTonnes(this double tonnes) => tonnes * 1000d;
-    public static string FormatWeight(this double grams, int precision = 2, string prefix = "", string suffix = "")
+    public static double ToGrams<T>(this T kilograms) where T : struct, IConvertible => Convert.ToDouble(kilograms) * 1000d;
+    public static double ToKilograms<T>(this T grams) where T : struct, IConvertible => Convert.ToDouble(grams) / 1000d;
+    public static double ToTonnes<T>(this T kilograms) where T : struct, IConvertible => Convert.ToDouble(kilograms) / 1000d;
+    public static double ToKilogramsFromTonnes<T>(this T tonnes) where T : struct, IConvertible => Convert.ToDouble(tonnes) * 1000d;
+    public static string FormatWeight<T>(this T grams, int precision = 2, string prefix = "", string suffix = "") where T : struct, IConvertible
     {
         string[] units = ["g", "kg", "t"];
-        double size = grams;
+        double size = Convert.ToDouble(grams);
         int order = 0;
         while (size >= 1000 && order < units.Length - 1)
         {

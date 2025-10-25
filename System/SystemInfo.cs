@@ -1,11 +1,11 @@
-﻿using System.Globalization;
+﻿using System.Runtime.InteropServices;
+using System.Globalization;
 using System.Management;
-using System.Runtime.InteropServices;
 namespace ReisProduction.Wincore.System;
 /// <summary>
 /// System information retrieval utility class.
 /// </summary>
-public static class SystemInfo
+public static class System
 {
     /// <inheritdoc cref="Environment.UserName"/>
     public static string CurrentUser => Environment.UserName;
@@ -13,13 +13,9 @@ public static class SystemInfo
     public static string DomainName => Environment.UserDomainName;
     /// <inheritdoc cref="Environment.MachineName"/>
     public static string MachineName => Environment.MachineName;
-    /// <inheritdoc cref="Environment.ProcessorCount"/>/>
-    public static int ProcessId => Environment.ProcessId;
-    /// <inheritdoc cref="Environment.ProcessorCount"/>
-    public static bool Is64BitProcess => Environment.Is64BitProcess;
-    /// <inheritdoc cref="Environment.ProcessorCount"/>
+    /// <inheritdoc cref="RuntimeInformation.OSDescription"/>
     public static string OSDescription => RuntimeInformation.OSDescription;
-    /// <inheritdoc cref="Environment.ProcessorCount"/>
+    /// <inheritdoc cref="RuntimeInformation.OSArchitecture"/>
     public static Architecture OSArchitecture => RuntimeInformation.OSArchitecture;
     public static string SystemDirectory => Environment.SystemDirectory;
     /// <inheritdoc cref="RuntimeInformation.FrameworkDescription"/>
@@ -28,9 +24,9 @@ public static class SystemInfo
     public static string TwoLetterISOLanguageName => CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
     /// <inheritdoc cref="CultureInfo.CurrentCulture"/>
     public static CultureInfo CurrentCulture => CultureInfo.CurrentCulture;
-    /// <inheritdoc cref="Environment.ProcessorCount"/>
+    /// <inheritdoc cref="Environment.CurrentDirectory"/>
     public static string CurrentDirectory => Environment.CurrentDirectory;
-    /// <inheritdoc cref="Environment.ProcessorCount"/>
+    /// <inheritdoc cref="Environment.Version"/>
     public static string CLRVersion => Environment.Version.ToString();
     /// <summary>
     /// Gets the Windows version number (e.g., 10.0.19045).
@@ -61,63 +57,6 @@ public static class SystemInfo
             }
             catch (Exception ex) { edition = $"Error: {ex.Message}"; }
         return edition ?? "Unknown Windows Version";
-    }
-    /// <summary>
-    /// Gets the system architecture (e.g., x64, ARM64).
-    /// </summary>
-    public static string GetArchitecture()
-    {
-        try
-        {
-            using ManagementObjectSearcher searcher = new("SELECT OSArchitecture FROM Win32_OperatingSystem");
-            foreach (var obj in searcher.Get().Cast<ManagementObject>())
-                return obj[nameof(OSArchitecture)]?.ToString() ?? "Unknown";
-            throw new InvalidOperationException("No results from WMI query.");
-        }
-        catch { return RuntimeInformation.OSArchitecture.ToString(); }
-    }
-    /// <summary>
-    /// Gets the processor name (e.g., AMD Ryzen™ 9 9950X3D).
-    /// </summary>
-    public static string GetProcessorName()
-    {
-        try
-        {
-            using ManagementObjectSearcher searcher = new("SELECT Name FROM Win32_Processor");
-            foreach (var obj in searcher.Get().Cast<ManagementObject>())
-                return obj["Name"]?.ToString()?.Trim() ?? "Unknown";
-            throw new InvalidOperationException("No results from WMI query.");
-        }
-        catch { return "Unknown"; }
-    }
-    /// <summary>
-    /// Gets the GPU name (e.g., NVIDIA GeForce RTX 5090).
-    /// </summary>
-    public static string GetGpuName()
-    {
-        try
-        {
-            using ManagementObjectSearcher searcher = new("SELECT Name FROM Win32_VideoController");
-            foreach (var obj in searcher.Get().Cast<ManagementObject>())
-                return obj["Name"]?.ToString() ?? "Unknown";
-            throw new InvalidOperationException("No results from WMI query.");
-        }
-        catch { return "Unknown"; }
-    }
-    /// <summary>
-    /// Gets the total physical memory in a human-readable format.
-    /// </summary>
-    public static string GetTotalMemory(int precision = 2, string prefix = "", string suffix = "")
-    {
-        try
-        {
-            using ManagementObjectSearcher searcher = new("SELECT TotalVisibleMemorySize FROM Win32_OperatingSystem");
-            foreach (var obj in searcher.Get().Cast<ManagementObject>())
-                if (long.TryParse(obj["TotalVisibleMemorySize"]?.ToString(), out var kb))
-                    return (kb * 1024L).FormatDataSize(precision, prefix, suffix);
-        }
-        catch { }
-        return "Unknown";
     }
     /// <summary>
     /// Gets the system boot time as a formatted string (yyyy-MM-dd HH:mm:ss).

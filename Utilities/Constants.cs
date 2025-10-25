@@ -10,8 +10,26 @@ public static class Constants
         MAPVK_WK_TO_VK = 1,     // Translates a scan code into a virtual-key code
 
         // Input types
-        INPUT_MOUSE = 0,        // Mouse input
-        INPUT_KEYBOARD = 1,     // Keyboard input
+        INPUT_MOUSE = 0,            // Mouse input
+        INPUT_KEYBOARD = 1,         // Keyboard input
+        WH_KEYBOARD_LL = 13,        // Low-level keyboard hook
+        WH_MOUSE_LL = 14,           // Low-level mouse hook
+        WM_KEYDOWN = 0x0100,        // Key down message
+        WM_KEYUP = 0x0101,          // Key up message
+        WM_SYSKEYDOWN = 0x0104,     // System key down message
+        WM_SYSKEYUP = 0x0105,       // System key up message
+        WM_MOUSEMOVE = 0x0200,      // Mouse move message
+        WM_MOUSEWHEEL = 0x020A,     // Mouse wheel message
+        WM_MOUSEHWHEEL = 0x020E,    // Mouse horizontal wheel message
+        WM_LBUTTONDOWN = 0x0201,    // Left button down message
+        WM_LBUTTONUP = 0x0202,      // Left button up message
+        WM_RBUTTONDOWN = 0x0204,    // Right button down message
+        WM_RBUTTONUP = 0x0205,      // Right button up message
+        WM_MBUTTONDOWN = 0x0207,    // Middle button down message
+        WM_MBUTTONUP = 0x0208,      // Middle button up message
+        WM_XBUTTONDOWN = 0x020B,    // X button down message
+        WM_XBUTTONUP = 0x020C,      // X button up message
+        LLKHF_INJECTED = 0x10,      // Flag indicating the event was injected
 
         // Mouse wheel constants
         WHEEL_DELTA = -120,       // Default value for one wheel notch movement
@@ -50,6 +68,34 @@ public static class Constants
         SM_CXSCREEN = 0,          // Screen width in pixels
         SM_CYSCREEN = 1,          // Screen height in pixels
 
+        // OpenFileName Flags
+        OFN_READONLY = 0x00000001,              // Open file as read-only
+        OFN_OVERWRITEPROMPT = 0x00000002,       // Prompt before overwriting files
+        OFN_HIDEREADONLY = 0x00000004,          // Hide read-only checkbox
+        OFN_NOCHANGEDIR = 0x00000008,           // Never change the current directory
+        OFN_SHOWHELP = 0x00000010,              // Show help button
+        OFN_ENABLEHOOK = 0x00000020,            // Enable hook function
+        OFN_ENABLETEMPLATE = 0x00000040,        // Use custom template for dialog
+        OFN_ENABLETEMPLATEHANDLE = 0x00000080,  // Use hInstance instead of hTemplate
+        OFN_NOVALIDATE = 0x00000100,            // Do not validate file names
+        OFN_ALLOWMULTISELECT = 0x00000200,      // Allow multiple file selection
+        OFN_EXTENSIONDIFFERENT = 0x00000400,    // Force extension to be different
+        OFN_PATHMUSTEXIST = 0x00000800,         // Path must exist
+        OFN_FILEMUSTEXIST = 0x00001000,         // File must exist
+        OFN_CREATEPROMPT = 0x00002000,          // Prompt for file creation
+        OFN_SHAREAWARE = 0x00004000,            // Share aware
+        OFN_NOREADONLYRETURN = 0x00008000,      // Do not return read-only files
+        OFN_NOTESTFILECREATE = 0x00010000,      // Do not test file creation
+        OFN_NONETWORKBUTTON = 0x00020000,       // Hide network button
+        OFN_NOLONGNAMES = 0x00040000,           // Use short names only
+        OFN_EXPLORER = 0x00080000,              // Use Explorer-style dialog
+        OFN_NODEREFERENCELINKS = 0x00100000,    // Do not dereference links
+        OFN_LONGNAMES = 0x00200000,             // Use long names
+        OFN_ENABLEINCLUDENOTIFY = 0x00400000,   // Enable include notification
+        OFN_ENABLESIZING = 0x00800000,          // Enable sizing of the dialog
+        OFN_DONTADDTORECENT = 0x02000000,       // Do not add to recent documents
+        OFN_FORCESHOWHIDDEN = 0x10000000,       // Force showing hidden files
+
         // Length Limits
         MAX_TITLE_LENGTH = 256,   // Max title length for GetWindowText()
 
@@ -64,7 +110,8 @@ public static class Constants
         SPI_SETMENUANIMATION = 0x1003,                // Enables/disables menu animations
         SPIF_SENDCHANGE = 0x2,                        // Broadcasts WM_SETTINGCHANGE after system parameter update
         PROCESS_QUERY_LIMITED_INFORMATION = 0x1000,   // Grants limited process query rights
-        TOKEN_QUERY = 0x0008;                         // Grants read access to an access token
+        TOKEN_QUERY = 0x0008,                         // Grants read access to an access token
+        MOUSEEVENTF_INJECTED = 0x00000001;            // Indicates the event was injected
 
     /// <summary>
     /// Public constant values for special window handles.
@@ -79,4 +126,13 @@ public static class Constants
     public const string
         ScheduledJobName = "ScheduledShutdown", // Default scheduled task name
         TempFileName = "iCantMailTo.txt";       // Default temporary file name
+
+    /// <summary>
+    /// GUIDs for power plan settings.
+    /// </summary>
+    public static readonly Guid
+        GUID_MIN_POWER_SAVINGS = new("a1841308-3541-4fab-bc81-f71556f20b4a"),       // Power saver plan
+        GUID_TYPICAL_POWER_SAVINGS = new("381b4222-f694-41f0-9685-ff5bb260df2e"),   // Balanced power plan
+        GUID_MAX_POWER_SAVINGS = new("8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c"),       // High performance plan
+        GUID_ULTIMATE_POWER_SAVINGS = new("e9a42b02-d5df-448d-aa00-03f14749eb61");  // Ultimate performance plan
 }

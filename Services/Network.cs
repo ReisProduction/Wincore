@@ -1,6 +1,8 @@
-﻿using System.Text.RegularExpressions;
+﻿using static ReisProduction.Wincore.Models.ManagementHelper;
+using System.Text.RegularExpressions;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Management;
 using System.Net;
 namespace ReisProduction.Wincore.Services;
 /// <summary>
@@ -147,5 +149,60 @@ public static class Network
         .SelectMany(ni => ni.GetIPProperties().UnicastAddresses)
         .Select(ua => ua.Address).Where(a => a.AddressFamily
         is AddressFamily.InterNetwork or AddressFamily.InterNetworkV6)];
-
+    /// <summary>
+    /// Indicates whether a QoS policy with the specified name exists.
+    /// </summary>
+    public static bool IsRestrict(string name)
+    {
+        try
+        {
+            ManagementScope scope = new(@"\\.\root\StandardCimv2");
+            scope.Connect();
+            using ManagementObjectSearcher searcher = new(scope, new($"SELECT Name FROM MSFT_NetQosPolicy WHERE Name = '{name.EscapeWql()}'"));
+            using var results = searcher.Get();
+            foreach (var _ in results) return true;
+            return false;
+        }
+        catch { return false; }
+    }
+    /// <summary>
+    /// Restricts network bandwidth using a QoS policy with the specified name and throttle rate in bits per second.
+    /// </summary>
+    public static bool Restrict(string name, ulong throttleBitsPerSecond, bool makeDefault = true)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        try
+        {
+            ManagementScope scope = new(@"\\.\root\StandardCimv2");
+            scope.Connect();
+            using ManagementClass mc = new(scope, new("MSFT_NetQosPolicy"), null);
+            using var inst = mc.CreateInstance();
+            inst["Name"] = name;
+            inst["Default"] = makeDefault;
+            inst["ThrottleRateActionBitsPerSecond"] = throttleBitsPerSecond;
+            inst.Put();
+            return true;
+        }
+        catch { return false; }
+    }
+    /// <summary>
+    /// Unrestricts (removes) the QoS policy with the specified name.
+    /// </summary>
+    public static bool Unrestrict(string name)
+    {
+        try
+        {
+            ManagementScope scope = new(@"\\.\root\StandardCimv2");
+            scope.Connect();
+            using ManagementObjectSearcher searcher = new(scope, new($"SELECT * FROM MSFT_NetQosPolicy WHERE Name = '{name.EscapeWql()}'"));
+            using var results = searcher.Get();
+            foreach (var mo in results.Cast<ManagementObject>())
+            {
+                mo.Delete();
+                return true;
+            }
+            return false;
+        }
+        catch { return false; }
+    }
 }

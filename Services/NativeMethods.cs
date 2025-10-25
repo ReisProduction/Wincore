@@ -2,40 +2,22 @@
 namespace ReisProduction.Wincore.Services;
 internal static class NativeMethods
 {
-    #region Kernel32
-    [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
-    internal static extern long WritePrivateProfileString(string section, string? key, string? val, string filePath);
-    [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
-    internal static extern int GetPrivateProfileString(string section, string? key, string? def, StringBuilder retVal, int size, string filePath);
-    [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
-    internal static extern bool QueryFullProcessImageName(nint hProcess, int flags, StringBuilder exeName, ref int size);
-    [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
-    internal static extern bool CloseHandle(nint hObject);
-    [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
-    internal static extern nint OpenProcess(uint dwDesiredAccess, bool bInheritHandle, int dwProcessId);
-    #endregion
-    #region Advapi32
-    [DllImport("advapi32", EntryPoint = "CredWriteW", CharSet = CharSet.Unicode, SetLastError = true)]
-    internal static extern bool CredWrite([In] ref NativeCredential userCredential, [In] uint flags);
-    [DllImport("advapi32", EntryPoint = "CredReadW", CharSet = CharSet.Unicode, SetLastError = true)]
-    internal static extern bool CredRead(string target, int type, int reservedFlag, out nint credentialPtr);
-    [DllImport("advapi32", EntryPoint = "CredFree", SetLastError = true)]
-    internal static extern void CredFree([In] nint cred);
-    [DllImport("advapi32", EntryPoint = "CredDeleteW", CharSet = CharSet.Unicode, SetLastError = true)]
-    internal static extern bool CredDelete(string target, int type, int reservedFlag);
-    [DllImport("advapi32", SetLastError = true, CharSet = CharSet.Unicode)]
-    internal static extern bool OpenProcessToken(nint ProcessHandle, uint DesiredAccess, out nint TokenHandle);
+    #region Powrprof
+    [DllImport("powrprof", SetLastError = true, CharSet = CharSet.Unicode)]
+    internal static extern uint PowerGetActiveScheme(nint UserRootPowerKey, out nint ActivePolicyGuid);
+    [DllImport("powrprof", SetLastError = true, CharSet = CharSet.Unicode)]
+    internal static extern uint PowerSetActiveScheme(nint UserRootPowerKey, in Guid SchemeGuid);
     #endregion
     #region Dwmapi
-    [DllImport("dwmapi.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    [DllImport("dwmapi", SetLastError = true, CharSet = CharSet.Unicode)]
     internal static extern int DwmSetWindowAttribute(nint hwnd, int attr, int[] attrValue, int attrSize);
     #endregion
     #region Uxtheme
-    [DllImport("uxtheme.dll", EntryPoint = "#95")]
+    [DllImport("uxtheme", EntryPoint = "#95")]
     internal static extern uint GetImmersiveColorFromColorSetEx(uint dwImmersiveColorSet, uint dwImmersiveColorType, bool bIgnoreHighContrast, uint dwHighContrastCacheMode);
-    [DllImport("uxtheme.dll", EntryPoint = "#96")]
+    [DllImport("uxtheme", EntryPoint = "#96")]
     internal static extern uint GetImmersiveColorTypeFromName(nint pName);
-    [DllImport("uxtheme.dll", EntryPoint = "#98")]
+    [DllImport("uxtheme", EntryPoint = "#98")]
     internal static extern int GetImmersiveUserColorSetPreference(bool bForceCheckRegistry, bool bSkipCheckOnFail);
     #endregion
     #region BthpropsCpl
@@ -61,6 +43,42 @@ internal static class NativeMethods
     internal static extern int BluetoothRemoveDevice(ref Guid pAddress);
     [DllImport("bthprops.cpl", CharSet = CharSet.Unicode, SetLastError = true)]
     internal static extern int BluetoothSetServiceState(nint hRadio, ref BLUETOOTH_DEVICE_INFO pbtdi, ref Guid pGuidService, uint dwServiceFlags);
+    #endregion
+    #region Kernel32
+    [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
+    internal static extern long WritePrivateProfileString(string section, string? key, string? val, string filePath);
+    [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
+    internal static extern int GetPrivateProfileString(string section, string? key, string? def, StringBuilder retVal, int size, string filePath);
+    [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
+    internal static extern bool QueryFullProcessImageName(nint hProcess, int flags, StringBuilder exeName, ref int size);
+    [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
+    internal static extern bool CloseHandle(nint hObject);
+    [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
+    internal static extern nint OpenProcess(uint dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+    [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
+    internal static extern bool GetSystemPowerStatus(out SYSTEM_POWER_STATUS sps);
+    #endregion
+    #region Shell32
+    [DllImport("shell32", SetLastError = true, CharSet = CharSet.Auto)]
+    internal static extern nint SHBrowseForFolder(ref BROWSEINFO lpbi);
+    [DllImport("shell32", SetLastError = true, CharSet = CharSet.Auto)]
+    internal static extern bool SHGetPathFromIDList(nint pidl, nint pszPath);
+    #endregion
+    #region Advapi32
+    [DllImport("advapi32", EntryPoint = "CredWriteW", CharSet = CharSet.Unicode, SetLastError = true)]
+    internal static extern bool CredWrite([In] ref NativeCredential userCredential, [In] uint flags);
+    [DllImport("advapi32", EntryPoint = "CredReadW", CharSet = CharSet.Unicode, SetLastError = true)]
+    internal static extern bool CredRead(string target, int type, int reservedFlag, out nint credentialPtr);
+    [DllImport("advapi32", EntryPoint = "CredFree", SetLastError = true)]
+    internal static extern void CredFree([In] nint cred);
+    [DllImport("advapi32", EntryPoint = "CredDeleteW", CharSet = CharSet.Unicode, SetLastError = true)]
+    internal static extern bool CredDelete(string target, int type, int reservedFlag);
+    [DllImport("advapi32", SetLastError = true, CharSet = CharSet.Unicode)]
+    internal static extern bool OpenProcessToken(nint ProcessHandle, uint DesiredAccess, out nint TokenHandle);
+    #endregion
+    #region Comdlg32
+    [DllImport("comdlg32", SetLastError = true, CharSet = CharSet.Auto)]
+    internal static extern bool GetOpenFileName(ref OPENFILENAME ofn);
     #endregion
     #region User32
     [DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
@@ -117,5 +135,7 @@ internal static class NativeMethods
     internal static extern bool ShowWindow(nint hWnd, int nCmdShow);
     [DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
     internal static extern nint FindWindow(string? lpClassName, string lpWindowName);
+    [DllImport("user32", SetLastError = true, CharSet = CharSet.Auto)]
+    internal static extern nint GetActiveWindow();
     #endregion
 }

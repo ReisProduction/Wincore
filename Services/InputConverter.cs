@@ -1,10 +1,6 @@
-﻿using ReisProduction.Wincore.Models;
-using Windows.System;
-namespace ReisProduction.Wincore.Services;
+﻿namespace ReisProduction.Wincore.Services;
 public static class InputConverter
 {
-    public static WinRTKey ToWinRTKey(this VirtualKey key) => (WinRTKey)(ushort)MapVirtualKey((uint)key, MAPVK_VK_TO_WK);
-    public static VirtualKey ToVirtualKey(this WinRTKey scan) => (VirtualKey)MapVirtualKey((uint)scan, MAPVK_WK_TO_VK);
     public static VirtualKey ToVirtualKey(this InputType input) =>
     input switch
     {
@@ -172,6 +168,16 @@ public static class InputConverter
         InputType.OemClear => (VirtualKey)0xFE,
         _ => VirtualKey.None
     };
+    public static VirtualKeyModifiers ToModifiers(this VirtualKey key) =>
+    key switch
+    {
+        VirtualKey.Control or VirtualKey.LeftControl or VirtualKey.RightControl => VirtualKeyModifiers.Control,
+        VirtualKey.Shift or VirtualKey.LeftShift or VirtualKey.RightShift => VirtualKeyModifiers.Shift,
+        VirtualKey.Menu or VirtualKey.LeftMenu or VirtualKey.RightMenu => VirtualKeyModifiers.Menu,
+        VirtualKey.LeftWindows or VirtualKey.RightWindows => VirtualKeyModifiers.Windows,
+        _ => VirtualKeyModifiers.None
+    };
+    public static VirtualKeyModifiers ToModifiers(this InputType input) => ToModifiers(input.ToVirtualKey());
     public static ButtonType ToButton(this InputType input) => input switch
     {
         InputType.LeftButton => ButtonType.LeftButton,
@@ -203,7 +209,6 @@ public static class InputConverter
         InputType.MouseNavigateToXYSmooth => MoveType.MouseNavigateToXYSmooth,
         _ => MoveType.None
     };
-    public static InputType ToInput(this WinRTKey key) => ToInput(key.ToVirtualKey());
     public static InputType ToInput(this VirtualKey key) =>
     key switch
     {
@@ -402,7 +407,6 @@ public static class InputConverter
         MoveType.MouseNavigateToXYSmooth => InputType.MouseNavigateToXYSmooth,
         _ => InputType.None
     };
-    public static string ToKeyString(this WinRTKey key) => ToKeyString(key.ToVirtualKey());
     public static string ToKeyString(this VirtualKey key) => key switch
     {
         VirtualKey.Back => "{BACKSPACE}",
@@ -496,7 +500,6 @@ public static class InputConverter
         VirtualKey.LeftMenu or VirtualKey.RightMenu or VirtualKey.Menu => "%",
         _ => ""
     };
-    public static WinRTKey[] ToWinRTKeys(string sentence) => [.. ToVirtualKeys(sentence).Select(k => k.ToWinRTKey())];
     public static VirtualKey[] ToVirtualKeys(string sentence)
     {
         List<VirtualKey> keys = [];
@@ -534,7 +537,6 @@ public static class InputConverter
                 }
         return [.. keys];
     }
-    public static string ToSentence(this WinRTKey[] keys) => ToSentence(keys.Select(k => k.ToVirtualKey()).ToArray());
     public static string ToSentence(this VirtualKey[] keys)
     {
         bool capsLockState = false;
@@ -542,7 +544,8 @@ public static class InputConverter
         StringBuilder sb = new();
         foreach (var key in keys)
         {
-            if (key is VirtualKey.LeftShift or VirtualKey.RightShift or VirtualKey.Shift)
+            if (key is VirtualKey.LeftShift or
+                VirtualKey.RightShift or VirtualKey.Shift)
             {
                 shiftActive = true;
                 continue;
@@ -552,23 +555,22 @@ public static class InputConverter
                 capsLockState = !capsLockState;
                 continue;
             }
-            shiftActive = keys.Any(k => k is VirtualKey.LeftShift or VirtualKey.RightShift or VirtualKey.Shift);
+            shiftActive = keys.Any(k => k is VirtualKey.LeftShift or
+                            VirtualKey.RightShift or VirtualKey.Shift);
             var c = key.ToChar();
             if (c is null)
                 continue;
             char ch = c.Value;
             if (char.IsLetter(ch))
-            {
-                bool makeUpper = (capsLockState && !shiftActive) || (!capsLockState && shiftActive);
-                ch = makeUpper ? char.ToUpper(ch) : char.ToLower(ch);
-            }
+                ch = (capsLockState && !shiftActive) ||
+                     (!capsLockState && shiftActive) ?
+                     char.ToUpper(ch) : char.ToLower(ch);
             else if (shiftActive)
-                ch = TextUtils.ApplyShiftToNonLetter(ch);
+                ch = ch.ShiftToNonLetter();
             sb.Append(ch);
         }
         return sb.ToString();
     }
-    public static char? ToChar(this WinRTKey key) => ToChar(key.ToVirtualKey());
     public static char? ToChar(this VirtualKey key)
     {
         if (key >= VirtualKey.A && key <= VirtualKey.Z)

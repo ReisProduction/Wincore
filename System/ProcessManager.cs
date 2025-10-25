@@ -1,4 +1,5 @@
-﻿using System.Security.Principal;
+﻿using static ReisProduction.Wincore.Models.ManagementHelper;
+using System.Security.Principal;
 using System.Management;
 using System.Security;
 namespace ReisProduction.Wincore.Services;
@@ -105,14 +106,14 @@ public static class ProcessManager
         try
         {
             using var process = Process.GetProcessById(pid);
-            nint processHandle = OpenProcess(
+            var processHandle = OpenProcess(
                 PROCESS_QUERY_LIMITED_INFORMATION,
-                false,
-                process.Id);
+                false, process.Id);
             try
             {
-                if (processHandle == nint.Zero || !OpenProcessToken(processHandle,
-                    TOKEN_QUERY, out nint tokenHandle))
+                if (processHandle == nint.Zero ||
+                    !OpenProcessToken(processHandle,
+                    TOKEN_QUERY, out var tokenHandle))
                     return false;
                 using WindowsIdentity identity = new(tokenHandle);
                 WindowsPrincipal principal = new(identity);
@@ -138,31 +139,20 @@ public static class ProcessManager
     /// <summary>
     /// Command line used to start the process with the specified ID.
     /// </summary>
-    public static string CommandLine(int pid)
-    {
-        try
-        {
-            using var searcher = new ManagementObjectSearcher($"SELECT CommandLine FROM Win32_Process WHERE ProcessId={pid}");
-            foreach (ManagementObject obj in searcher.Get().Cast<ManagementObject>())
-                return obj["CommandLine"]?.ToString() ?? "";
-        }
-        catch { }
-        return string.Empty;
-    }
+    public static string CommandLine(int pid) => SelectFrom("CommandLine", "Win32_Process", $"ProcessId={pid}");
     /// <summary>
     /// Description of the process with the specified ID.
     /// </summary>
-    public static string Description(int pid)
+    public static string? Description(int pid)
     {
         try
         {
             var path = ExecutablePath(pid);
-            if (string.IsNullOrWhiteSpace(path)) return string.Empty;
+            if (string.IsNullOrWhiteSpace(path)) return null;
             var v = FileVersionInfo.GetVersionInfo(path);
-            ArgumentException.ThrowIfNullOrEmpty(v.FileDescription);
             return v.FileDescription;
         }
-        catch { return string.Empty; }
+        catch { return null; }
     }
     /// <summary>
     /// Main module file path of the process with the specified ID.
@@ -175,32 +165,30 @@ public static class ProcessManager
     /// <summary>
     /// File version of the process with the specified ID.
     /// </summary>
-    public static string FileVersion(int pid)
+    public static string? FileVersion(int pid)
     {
         try
         {
             var path = ExecutablePath(pid);
-            if (string.IsNullOrWhiteSpace(path)) return string.Empty;
+            if (string.IsNullOrWhiteSpace(path)) return null;
             var v = FileVersionInfo.GetVersionInfo(path);
-            ArgumentException.ThrowIfNullOrEmpty(v.FileVersion);
             return v.FileVersion;
         }
-        catch { return string.Empty; }
+        catch { return null; }
     }
     /// <summary>
     /// Company name of the process with the specified ID.
     /// </summary>
-    public static string Company(int pid)
+    public static string? Company(int pid)
     {
         try
         {
             var path = ExecutablePath(pid);
-            if (string.IsNullOrWhiteSpace(path)) return string.Empty;
+            if (string.IsNullOrWhiteSpace(path)) return null;
             var v = FileVersionInfo.GetVersionInfo(path);
-            ArgumentException.ThrowIfNullOrEmpty(v.CompanyName);
             return v.CompanyName;
         }
-        catch { return string.Empty; }
+        catch { return null; }
     }
     /// <summary>
     /// Session user of the process with the specified ID.
@@ -209,21 +197,13 @@ public static class ProcessManager
     {
         try
         {
-            using var searcher = new ManagementObjectSearcher($"SELECT * FROM Win32_Process WHERE ProcessId={pid}");
-            foreach (ManagementObject obj in searcher.Get().Cast<ManagementObject>())
-            {
-                var sessionId = Convert.ToInt32(obj["SessionId"]);
-                using var searcher2 = new ManagementObjectSearcher($"SELECT * FROM Win32_LogonSession WHERE LogonId={sessionId}");
-                foreach (ManagementObject obj2 in searcher2.Get().Cast<ManagementObject>())
-                {
-                    var userInfo = new string[2];
-                    _ = Convert.ToInt32(obj2.InvokeMethod("GetOwner", userInfo));
-                    return $"{userInfo[1]}\\{userInfo[0]}";
-                }
-            }
+            var sessionId = SelectFrom("SessionId", "Win32_Process", $"ProcessId={pid}");
+            ArgumentException.ThrowIfNullOrWhiteSpace(sessionId);
+            var domain = SelectFrom("Domain", "Win32_LoggedOnUser", $"Dependent='Win32_LogonSession.LogonId={sessionId}'");
+            var user = SelectFrom("Name", "Win32_LoggedOnUser", $"Dependent='Win32_LogonSession.LogonId={sessionId}'");
+            return @$"{domain}\{user}";
         }
-        catch { }
-        return string.Empty;
+        catch { return DefaultUnknownString; }
     }
     /// <summary>
     /// Owner of the process with the specified ID.
@@ -232,16 +212,12 @@ public static class ProcessManager
     {
         try
         {
-            using var searcher = new ManagementObjectSearcher($"SELECT * FROM Win32_Process WHERE ProcessId={pid}");
-            foreach (ManagementObject obj in searcher.Get().Cast<ManagementObject>())
-            {
-                var userInfo = new string[2];
-                _ = Convert.ToInt32(obj.InvokeMethod("Owner", userInfo));
-                return $"{userInfo[1]}\\{userInfo[0]}";
-            }
+            using ManagementObject obj = new($"Win32_Process.Handle='{pid}'");
+            var userInfo = new string[2];
+            _ = Convert.ToInt32(obj.InvokeMethod("GetOwner", userInfo));
+            return @$"{userInfo[1]}\{userInfo[0]}";
         }
-        catch { }
-        return string.Empty;
+        catch { return DefaultUnknownString; }
     }
     /// <summary>
     /// Memory usage (in bytes) of the process with the specified ID.

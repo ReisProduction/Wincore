@@ -1,13 +1,90 @@
-﻿using ReisProduction.Windelay.Utilities;
-using ReisProduction.Windelay.Models;
-using System.Runtime.InteropServices;
-using Windows.System;
+﻿using System.Runtime.InteropServices;
 namespace ReisProduction.Wincore.Services;
 /// <summary>
 /// Keyboard utility class for handling keyboard input and actions.
 /// </summary>
 public static class Keyboard
 {
+    public const VirtualKeyModifiers AllModifierKeys = VirtualKeyModifiers.None |
+                 VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift |
+                 VirtualKeyModifiers.Menu | VirtualKeyModifiers.Windows;
+    /// <summary>
+    /// Gets the current state of modifier keys.
+    /// </summary>
+    public static VirtualKeyModifiers GetModifiersState()
+    {
+        var state = VirtualKeyModifiers.None;
+        if (IsDown(VirtualKey.Control))
+            state |= VirtualKeyModifiers.Control;
+        if (IsDown(VirtualKey.Shift))
+            state |= VirtualKeyModifiers.Shift;
+        if (IsDown(VirtualKey.Menu))
+            state |= VirtualKeyModifiers.Menu;
+        if (IsDown(VirtualKey.LeftWindows) ||
+            IsDown(VirtualKey.RightWindows))
+            state |= VirtualKeyModifiers.Windows;
+        return state;
+    }
+    /// <summary>
+    /// Gets a string representation of the currently pressed modifier keys.
+    /// </summary>
+    public static string GetModifiersString(VirtualKeyModifiers? modifiers = null, bool acceptNone = true)
+    {
+        var mods = string.Empty;
+        modifiers ??= GetModifiersState();
+        foreach (var value in Enum.GetValues<VirtualKeyModifiers>())
+            if ((value is VirtualKeyModifiers.None && acceptNone && modifiers.Value is VirtualKeyModifiers.None) ||
+                (value is not VirtualKeyModifiers.None && modifiers.Value.HasFlag(value)))
+                mods += value + "+";
+        return mods.TrimEnd('+');
+    }
+    /// <summary>
+    /// Checks if the specified modifier keys are currently pressed with VirtualKeyModifiers input.
+    /// </summary>
+    public static bool CheckModifiers(VirtualKeyModifiers modifiers) => CheckModifiers(GetModifiersString(modifiers));
+    /// <summary>
+    /// Checks if the specified modifier keys are currently pressed with string input.
+    /// </summary>
+    public static bool CheckModifiers(string modifiers)
+    {
+        var current = GetModifiersState();
+        if (modifiers.Contains('-'))        // Or
+        {
+            var parts = modifiers.Split('-', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var group in parts.Where(p => p is not "None").ToList())
+            {
+                var mask = group.Contains('+')
+                    ? ToMaskList(group.Split('+', StringSplitOptions.RemoveEmptyEntries))
+                    : ToMask(group);
+                if ((current & mask) == mask) return true;
+            }
+            return parts.Contains("None") && current is VirtualKeyModifiers.None;
+        }
+        else if (modifiers.Contains('+'))   // And
+        {
+            var andParts = modifiers.Split('+', StringSplitOptions.RemoveEmptyEntries);
+            var mask = ToMaskList(andParts);
+            return (current & mask) == mask;
+        }
+        else if (modifiers is "None")       // None
+            return current is VirtualKeyModifiers.None;
+        return (current & ToMask(modifiers)) == ToMask(modifiers);
+        static VirtualKeyModifiers ToMask(string mod) => mod switch
+        {
+            "Control" => VirtualKeyModifiers.Control,
+            "Shift" => VirtualKeyModifiers.Shift,
+            "Menu" => VirtualKeyModifiers.Menu,
+            "Windows" => VirtualKeyModifiers.Windows,
+            _ => VirtualKeyModifiers.None
+        };
+        static VirtualKeyModifiers ToMaskList(IEnumerable<string> mods)
+        {
+            VirtualKeyModifiers mask = 0;
+            foreach (var mod in mods)
+                mask |= ToMask(mod);
+            return mask;
+        }
+    }
     /// <inheritdoc cref="Input.IsKeyDown(VirtualKey)"/>
     public static bool IsDown(VirtualKey key) => Input.IsKeyDown(key);
     /// <inheritdoc cref="Input.IsKeyUp(VirtualKey)"/>
@@ -63,65 +140,68 @@ public static class Keyboard
             keybd_event((byte)kybd.Keys[i], 0, (int)kybd.Messages[i], (int)GetMessageExtraInfo());
     }
     /// <summary>
+    /// Sends a keyboard message sequence using PostMessage API.
+    /// </summary>
+    /// <returns>Array of results from PostMessage calls.</returns>
+    public static bool[] PostMessage(KybdEvent kybd)
+    {
+        var hWnd = FindHandle(kybd.WindowInfo, false, false);
+        var sended = new bool[kybd.Keys.Length];
+        for (int i = 0; i < kybd.Keys.Length; i++)
+            sended[i] = NativeMethods.PostMessage(hWnd, (uint)kybd.Messages[i],
+                (ushort)kybd.Keys[i], nint.Zero);
+        return sended;
+    }
+    /// <summary>
+    /// Sends a keyboard message sequence using SendMessage API.
+    /// </summary>
+    /// <returns>Array of results from SendMessage calls.</returns>
+    public static nint[] SendMessage(KybdEvent kybd)
+    {
+        var hWnd = FindHandle(kybd.WindowInfo, false, false);
+        var sended = new nint[kybd.Keys.Length];
+        for (int i = 0; i < kybd.Keys.Length; i++)
+            sended[i] = NativeMethods.SendMessage(hWnd, (uint)kybd.Messages[i],
+                (ushort)kybd.Keys[i], nint.Zero);
+        return sended;
+    }
+    /// <summary>
     /// Keys down event for the specified key using SendInput API.
     /// </summary>
-    public static uint KeyDown(VirtualKey key, bool useScanCode, bool useUnicode,
-        bool isExtendedKey, WindowInfo window = null!, int time = 0) =>
-        SendInputs(KybdEvent.Create([key], [WindowsMessageType.KeyDown],
-            useScanCode, useUnicode, isExtendedKey, window, time));
-    /// <summary>
-    /// Keys down event for the specified key using keybd_event API.
-    /// </summary>
-    public static void KeyDownEvent(VirtualKey key, bool useScanCode, bool useUnicode,
-        bool isExtendedKey, WindowInfo window = null!, int time = 0) =>
-        SendEvents(KybdEvent.Create([key], [WindowsMessageType.KeyDown],
-            useScanCode, useUnicode, isExtendedKey, window, time));
+    public static uint[] KeysDown(VirtualKey[] keys, bool useScanCode, bool useUnicode,
+        bool isExtendedKey, WindowInfo window = null!, int time = 0)
+    {
+        var results = new uint[keys.Length];
+        for (int i = 0; i < keys.Length; i++)
+            results[i] = SendInputs(KybdEvent.Create([keys[i]], [WindowsMessageType.KeyDown],
+                useScanCode, useUnicode, isExtendedKey, window, time));
+        return results;
+    }
     /// <summary>
     /// Keys up event for the specified key using SendInput API.
     /// </summary>
-    public static uint KeyUp(VirtualKey key, bool useScanCode, bool useUnicode,
-        bool isExtendedKey, WindowInfo window = null!, int time = 0) =>
-        SendInputs(KybdEvent.Create([key], [WindowsMessageType.KeyUp],
-            useScanCode, useUnicode, isExtendedKey, window, time));
-    /// <summary>
-    /// Keys up event for the specified key using keybd_event API.
-    /// </summary>
-    public static void KeyUpEvent(VirtualKey key, bool useScanCode, bool useUnicode,
-        bool isExtendedKey, WindowInfo window = null!, int time = 0) =>
-        SendEvents(KybdEvent.Create([key], [WindowsMessageType.KeyUp],
-            useScanCode, useUnicode, isExtendedKey, window, time));
-    /// <summary>
-    /// Keys press (down + up) for the specified key using SendInput API.
-    /// </summary>
-    public static uint KeyPress(VirtualKey key, DelayAction? delayAction = null, bool useScanCode = false,
-        bool useUnicode = false, bool isExtendedKey = false, WindowInfo window = null!)
+    /// <returns>Array of results from SendInput calls.</returns>
+    public static uint[] KeysUp(VirtualKey[] keys, bool useScanCode, bool useUnicode,
+        bool isExtendedKey, WindowInfo window = null!, int time = 0)
     {
-        uint total;
-        if (delayAction is null)
-            total = 2 * SendInputs(KybdEvent.Create([key], [WindowsMessageType.KeyDown | WindowsMessageType.KeyUp],
-                useScanCode, useUnicode, isExtendedKey, window));
-        else
-        {
-            total = KeyDown(key, useScanCode, useUnicode, isExtendedKey, window);
-            DelayExecutor.HandleDelay(delayAction).GetAwaiter().GetResult();
-            total += KeyUp(key, useScanCode, useUnicode, isExtendedKey, window);
-        }
-        return total;
+        var results = new uint[keys.Length];
+        for (int i = 0; i < keys.Length; i++)
+            results[i] = SendInputs(KybdEvent.Create([keys[i]], [WindowsMessageType.KeyUp],
+                useScanCode, useUnicode, isExtendedKey, window, time));
+        return results;
     }
     /// <summary>
-    /// Keys press (down + up) for the specified key using keybd_event API.
+    /// Sends a keyboard event sequence using SendInput API.
     /// </summary>
-    public static void KeyPressEvent(VirtualKey key, DelayAction? delayAction = null, bool useScanCode = false,
-        bool useUnicode = false, bool isExtendedKey = false, WindowInfo window = null!)
+    /// <returns>Array of results from SendInput calls.</returns>
+    public static uint[] KeyPress(VirtualKey[] keys, bool useScanCode, bool useUnicode,
+        bool isExtendedKey, WindowInfo window = null!, int time = 0)
     {
-        if (delayAction is null)
-            SendEvents(KybdEvent.Create([key], [WindowsMessageType.KeyDown | WindowsMessageType.KeyUp],
-                useScanCode, useUnicode, isExtendedKey, window));
-        else
-        {
-            KeyDownEvent(key, useScanCode, useUnicode, isExtendedKey, window);
-            DelayExecutor.HandleDelay(delayAction).GetAwaiter().GetResult();
-            KeyUpEvent(key, useScanCode, useUnicode, isExtendedKey, window);
-        }
+        var results = new uint[keys.Length];
+        for (int i = 0; i < keys.Length; i++)
+            results[i] = SendInputs(KybdEvent.Create([keys[i]], 
+                [WindowsMessageType.KeyDown, WindowsMessageType.KeyUp],
+                useScanCode, useUnicode, isExtendedKey, window, time));
+        return results;
     }
 }

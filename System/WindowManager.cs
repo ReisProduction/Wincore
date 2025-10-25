@@ -259,13 +259,13 @@ public static class WindowManager
     /// <inheritdoc cref="ProcessManager.CommandLine(int)"/>
     public static string CommandLine(int pid) => ProcessManager.CommandLine(pid);
     /// <inheritdoc cref="ProcessManager.Description(int)"/>
-    public static string Description(int pid) => ProcessManager.Description(pid);
+    public static string? Description(int pid) => ProcessManager.Description(pid);
     /// <inheritdoc cref="ProcessManager.FileVersion(int)"/>
-    public static string FileVersion(int pid) => ProcessManager.FileVersion(pid);
+    public static string? FileVersion(int pid) => ProcessManager.FileVersion(pid);
     /// <inheritdoc cref="ProcessManager.MainModule(int)"/>
     public static string MainModule(int pid) => ProcessManager.MainModule(pid);
     /// <inheritdoc cref="ProcessManager.Company(int)"/>
-    public static string Company(int pid) => ProcessManager.Company(pid);
+    public static string? Company(int pid) => ProcessManager.Company(pid);
     /// <inheritdoc cref="ProcessManager.SessionUser(int)"/>
     public static string SessionUser(int pid) => ProcessManager.SessionUser(pid);
     /// <inheritdoc cref="ProcessManager.Owner(int)"/>

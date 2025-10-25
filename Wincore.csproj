@@ -43,8 +43,15 @@
 
   <ItemGroup>
     <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="9.0.10" />
+    <PackageReference Include="System.Drawing.Common" Version="9.0.10" />
     <PackageReference Include="System.Management" Version="9.0.10" />
-    <PackageReference Include="Windelay" Version="26.5.1" />
+    <PackageReference Include="Windelay" Version="26.5.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms">
+      <HintPath>..\..\..\..\..\..\Windows\Microsoft.NET\Framework\v4.0.30319\System.Windows.Forms.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -63,6 +70,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Using Include="ReisProduction.Wincore.Config.DatabaseManager">
+      <Static>True</Static>
+    </Using>
+    <Using Include="ReisProduction.Wincore.Config.LocalizationManager">
+      <Static>True</Static>
+    </Using>
     <Using Include="ReisProduction.Wincore.Models.SizeConverter">
       <Static>True</Static>
     </Using>
@@ -83,8 +96,11 @@
     </Using>
     <Using Include="ReisProduction.Wincore.Utilities.Enums" />
     <Using Include="ReisProduction.Wincore.Utilities.Structs" />
+    <Using Include="ReisProduction.Windelay.Models" />
+    <Using Include="ReisProduction.Windelay.Utilities" />
     <Using Include="System.Diagnostics" />
     <Using Include="System.Text" />
+    <Using Include="Windows.System" />
   </ItemGroup>
 
 </Project>

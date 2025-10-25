@@ -1,7 +1,30 @@
 ﻿using System.Management;
 namespace ReisProduction.Wincore.Models;
-public partial class EventHelper
+public static class ManagementHelper
 {
+    public static string DefaultUnknownString => "Unknown";
+    /// <summary>
+    /// Escapes single quotes in a string for WQL queries.
+    /// </summary>
+    public static string EscapeWql(this string s) => s?.Replace("'", "''") ?? string.Empty;
+    /// <summary>
+    /// Gets a property from a specified WMI query.
+    /// </summary>
+    public static string Get(string query, string property)
+    {
+        try
+        {
+            using ManagementObjectSearcher searcher = new(query);
+            foreach (var obj in searcher.Get().Cast<ManagementObject>())
+                return obj[property]?.ToString() ?? throw new InvalidOperationException($"{property} is not found!");
+        }
+        catch { }
+        return DefaultUnknownString;
+    }
+    /// <summary>
+    /// Selects a property from a specified WMI class.
+    /// </summary>
+    public static string SelectFrom(string property, string prefix, string? where = null) => Get($"SELECT {property} FROM {prefix + (string.IsNullOrWhiteSpace(where) ? "" : $"WHERE {where}")}", property);
     /// <summary>
     /// Parses an integer property from the WMI event or returns 0 if not found.
     /// </summary>

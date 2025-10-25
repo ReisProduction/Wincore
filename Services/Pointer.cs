@@ -2,9 +2,9 @@
 using System.ComponentModel;
 namespace ReisProduction.Wincore.Services;
 /// <summary>
-/// Mouse utility class for handling mouse input and actions.
+/// Pointer utility class for handling pointer input and actions.
 /// </summary>
-public static class Mouse
+public static class Pointer
 {
     /// <summary>
     /// Is the specified mouse button currently pressed/down/held?

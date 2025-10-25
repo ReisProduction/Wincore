@@ -9,6 +9,6 @@ public struct BLUETOOTH_RADIO_INFO(int dwSize, ulong address, string szName,
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 248)]
     public string szName = szName;
     public uint ulClassOfDevice = ulClassOfDevice;
-    public ushort lmpSubversion = lmpSubversion;
-    public ushort manufacturer = manufacturer;
+    public ushort lmpSubversion = lmpSubversion,
+                   manufacturer = manufacturer;
 }
